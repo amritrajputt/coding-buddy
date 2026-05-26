@@ -36,6 +36,9 @@ const server = http.createServer(async (req, res) => {
         } else if (req.url === "/dom.js") {
             filePath = path.join(__dirname, "dom.js");
             contentType = "application/javascript";
+        } else if (req.url === "/logo.png") {
+            filePath = path.join(__dirname, "logo.png");
+            contentType = "image/png";
         }
 
         if (filePath) {
