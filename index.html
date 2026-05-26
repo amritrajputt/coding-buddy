@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Buddy Chatbot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #15102a 50%, #06020f 100%);
+            --panel-bg: rgba(22, 17, 43, 0.7);
+            --panel-border: rgba(123, 97, 255, 0.2);
+            --user-bubble: linear-gradient(135deg, #7b61ff 0%, #5b3bf5 100%);
+            --gemini-bubble: rgba(255, 255, 255, 0.05);
+            --text-primary: #f3f1f9;
+            --text-secondary: #9b95b6;
+            --accent: #7b61ff;
+            --accent-hover: #9681ff;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 85vh;
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .chat-header {
+            padding: 24px;
+            background: linear-gradient(180deg, rgba(123, 97, 255, 0.1) 0%, rgba(0,0,0,0) 100%);
+            border-bottom: 1px solid rgba(123, 97, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #7b61ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 0 15px rgba(123, 97, 255, 0.5);
+        }
+
+        .header-info h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(123, 97, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: var(--user-bubble);
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(123, 97, 255, 0.3);
+        }
+
+        .message.gemini {
+            align-self: flex-start;
+            background: var(--gemini-bubble);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.loading {
+            font-style: italic;
+            color: var(--text-secondary);
+            animation: pulse 1.5s infinite;
+        }
+
+        .message.gemini p {
+            margin-bottom: 12px;
+        }
+
+        .message.gemini p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message.gemini pre {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(123, 97, 255, 0.2);
+            padding: 14px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 14px 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .message.gemini code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: rgba(123, 97, 255, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #d1c7ff;
+        }
+
+        .message.gemini pre code {
+            background: none;
+            padding: 0;
+            color: #f3f1f9;
+            font-size: 0.88rem;
+        }
+
+        .message.gemini ul, .message.gemini ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .message.gemini li {
+            margin-bottom: 6px;
+        }
+
+        .message.gemini h1, .message.gemini h2, .message.gemini h3, .message.gemini h4 {
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .message.gemini h3 {
+            font-size: 1.1rem;
+        }
+
+        .chat-input-panel {
+            padding: 20px 24px;
+            background: rgba(10, 7, 21, 0.6);
+            border-top: 1px solid rgba(123, 97, 255, 0.1);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            height: 50px;
+            padding: 0 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(123, 97, 255, 0.2);
+            border-radius: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(123, 97, 255, 0.25);
+        }
+
+        .chat-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .send-btn {
+            height: 50px;
+            padding: 0 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 97, 255, 0.4);
+        }
+
+        .send-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="avatar">💻</div>
+            <div class="header-info">
+                <h1>Coding Buddy</h1>
+                <p>Gemini-powered coding assistant</p>
+            </div>
+        </header>
+
+      
+        <main class="chat-messages" id="chat">
+            <div class="message gemini">
+                Hi there! Ask me any coding question. Note: I only discuss coding! 😉
+            </div>
+        </main>
+
+        
+        <footer class="chat-input-panel">
+            <input type="text" id="input" class="chat-input" placeholder="Type a coding question..." autocomplete="off">
+            <button id="send" class="send-btn">
+                Send
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script type="module" src="day3.js"></script>
+</body>
+</html>

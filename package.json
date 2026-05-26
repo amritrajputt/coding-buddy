@@ -1,0 +1,19 @@
+{
+  "name": "coding-tutor-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "day3.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^2.6.0",
+    "dotenv": "^17.4.2",
+    "url": "^0.11.4"
+  }
+}
