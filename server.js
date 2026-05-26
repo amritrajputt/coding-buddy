@@ -33,8 +33,8 @@ const server = http.createServer(async (req, res) => {
 
         if (req.url === "/" || req.url === "/index.html") {
             filePath = path.join(__dirname, "index.html");
-        } else if (req.url === "/day3.js") {
-            filePath = path.join(__dirname, "day3.js");
+        } else if (req.url === "/dom.js") {
+            filePath = path.join(__dirname, "dom.js");
             contentType = "application/javascript";
         }
 
